@@ -12,24 +12,52 @@ type Node struct {
 	prev  *Node
 }
 
-func (l *LinkedList) AddToTail(node Node) {
-	l.size++
+func (l *LinkedList) AddToTail(value any) {
+	node := Node{value: value}
 	tail := l.tail
 	l.tail = &node
-	if tail == nil {
+	l.size++
+
+	if l.size == 1 {
 		l.head = &node
+		return
 	}
 
+	tail.next = &node
+	node.prev = tail
 }
 
-func (l *LinkedList) AddToHead(node Node) {
-	l.size++
+func (l *LinkedList) AddToHead(value any) {
+	node := Node{value: value}
 	head := l.head
 	l.head = &node
-	if head == nil {
+	l.size++
+
+	if l.size == 1 {
 		l.tail = &node
+		return
 	}
 
+	head.prev = &node
+	node.next = head
+}
+
+func (l *LinkedList) PopTail() *any {
+	if l.size == 0 {
+		return nil
+	}
+	l.size--
+	tail := l.tail
+
+	if l.size == 0 {
+		l.head = nil
+		l.tail = nil
+		return &tail.value
+	}
+
+	tail.prev.next = nil
+
+	return &tail.value
 }
 
 func (l *LinkedList) AddAfter(node *Node, val any) {

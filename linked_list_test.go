@@ -1,5 +1,10 @@
 package main
 
+import (
+	"slices"
+	"testing"
+)
+
 func setupLinkedList(nodeNumber int) *LinkedList {
 	if nodeNumber < 0 {
 		return nil
@@ -31,11 +36,22 @@ func traverseLinkedList(l LinkedList) []int {
 	return values
 }
 
-/*
-func TestA(t *testing.T) {
-	l := setupLinkedList(5)
-	t.Errorf("%+v", l)
-	v := traverseLinkedList(*l)
-	t.Fatalf("Test: %v", v)
+func TestAddingToHeadProducesValidLinkedList(t *testing.T) {
+	l := LinkedList{}
+
+	for i := 5; i >= 0; i-- {
+		l.AddToHead(i)
+	}
+
+	got := traverseLinkedList(l)
+	want := []int{0, 1, 2, 3, 4, 5}
+
+	if !slices.Equal(want, got) {
+		t.Errorf("want: %v, got: %v", want, got)
+	}
+
+	if l.size != 6 {
+		t.Errorf("want: %d, got: %d", 6, l.size)
+	}
+
 }
-*/
