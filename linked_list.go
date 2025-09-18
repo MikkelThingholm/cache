@@ -1,65 +1,94 @@
 package main
 
-type LinkedList struct {
-	head *Node
-	tail *Node
-	size int
+type LinkedList[K comparable, V any] struct {
+	Sentinel *Node[K, V]
+	len      int
 }
 
-type Node struct {
-	value any
-	next  *Node
-	prev  *Node
+type Node[K comparable, V any] struct {
+	key   K
+	value V
+	next  *Node[K, V]
+	prev  *Node[K, V]
 }
 
-func (l *LinkedList) AddToTail(value any) {
-	node := Node{value: value}
-	tail := l.tail
-	l.tail = &node
-	l.size++
-
-	if l.size == 1 {
-		l.head = &node
-		return
+func NewLinkedList[K comparable, V any]() *LinkedList[K, V] {
+	sentinel := Node[K, V]{}
+	sentinel.next = &sentinel
+	sentinel.prev = &sentinel
+	return &LinkedList[K, V]{
+		Sentinel: &sentinel,
+		len:      0,
 	}
-
-	tail.next = &node
-	node.prev = tail
 }
 
-func (l *LinkedList) AddToHead(value any) {
-	node := Node{value: value}
-	head := l.head
-	l.head = &node
-	l.size++
-
-	if l.size == 1 {
-		l.tail = &node
-		return
-	}
-
-	head.prev = &node
-	node.next = head
-}
-
-func (l *LinkedList) PopTail() *any {
-	if l.size == 0 {
+func (l *LinkedList[K, V]) Head() *Node[K, V] {
+	if l.len == 0 {
 		return nil
 	}
-	l.size--
-	tail := l.tail
-
-	if l.size == 0 {
-		l.head = nil
-		l.tail = nil
-		return &tail.value
-	}
-
-	tail.prev.next = nil
-
-	return &tail.value
+	return l.Sentinel.next
 }
 
+func (l *LinkedList[K, V]) Tail() *Node[K, V] {
+	if l.len == 0 {
+		return nil
+	}
+	return l.Sentinel.prev
+}
+
+func (l *LinkedList[K, V]) AddToHead(key K, value V) {
+	l.len++
+	node := Node[K, V]{
+		key:   key,
+		value: value,
+		next:  l.Sentinel.next,
+		prev:  l.Sentinel,
+	}
+	node.prev.next = &node
+	node.next.prev = &node
+}
+
+func (l *LinkedList[K, V]) AddToTail(key K, value V) {
+	l.len++
+	node := Node[K, V]{
+		key:   key,
+		value: value,
+		next:  l.Sentinel,
+		prev:  l.Sentinel.prev,
+	}
+	node.next.prev = &node
+	node.prev.next = &node
+}
+
+func (l *LinkedList[K, V]) PopTail() *Node[K, V] {
+	if l.len == 0 {
+		return nil
+	}
+	l.len--
+
+	tail := l.Tail()
+
+	tail.prev.next = l.Sentinel
+	tail.next.prev = tail.prev
+
+	return tail
+}
+
+func (l *LinkedList[K, V]) PopHead() *Node[K, V] {
+	if l.len == 0 {
+		return nil
+	}
+	l.len--
+
+	head := l.Head()
+
+	head.next.prev = l.Sentinel
+	head.prev.next = head.next
+
+	return head
+}
+
+/*
 func (l *LinkedList) AddAfter(node *Node, val any) {
 	l.size++
 	newNode := Node{
@@ -110,3 +139,4 @@ func (l *LinkedList) Swap(node1 *Node, node2 *Node) {
 	}
 
 }
+*/

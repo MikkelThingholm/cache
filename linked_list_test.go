@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+/*
 func setupLinkedList(nodeNumber int) *LinkedList {
 	if nodeNumber < 0 {
 		return nil
@@ -16,42 +17,46 @@ func setupLinkedList(nodeNumber int) *LinkedList {
 	}
 	return &linkedList
 }
+*/
 
-func traverseLinkedList(l LinkedList) []int {
-	node := l.head
+func traverseLinkedList(l LinkedList[int, int]) ([]int, []int) {
+	node := l.Head()
 	if node == nil {
-		return []int{}
+		return []int{}, []int{}
 	}
 
-	value, _ := node.value.(int)
-	values := []int{value}
+	keys := []int{}
+	values := []int{}
 
-	for node.next != nil {
+	for i := 0; i < l.len; i++ {
+		keys = append(keys, node.key)
+		values = append(values, node.value)
 		node = node.next
-
-		value, _ = node.value.(int)
-		values = append(values, value)
 	}
 
-	return values
+	return keys, values
 }
 
 func TestAddingToHeadProducesValidLinkedList(t *testing.T) {
-	l := LinkedList{}
+	l := NewLinkedList[int, int]()
 
 	for i := 5; i >= 0; i-- {
-		l.AddToHead(i)
+		l.AddToHead(i, i)
 	}
 
-	got := traverseLinkedList(l)
+	got_keys, got_values := traverseLinkedList(*l)
 	want := []int{0, 1, 2, 3, 4, 5}
 
-	if !slices.Equal(want, got) {
-		t.Errorf("want: %v, got: %v", want, got)
+	if !slices.Equal(want, got_keys) {
+		t.Errorf("want: %v, got: %v", want, got_keys)
 	}
 
-	if l.size != 6 {
-		t.Errorf("want: %d, got: %d", 6, l.size)
+	if !slices.Equal(want, got_values) {
+		t.Errorf("want: %v, got: %v", want, got_values)
+	}
+
+	if l.len != 6 {
+		t.Errorf("want: %d, got: %d", 6, l.len)
 	}
 
 }
