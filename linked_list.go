@@ -1,15 +1,14 @@
 package main
 
 type LinkedList[K comparable, V any] struct {
-	Sentinel *Node[K, V]
+	sentinel *Node[K, V]
 	len      int
 }
 
 type Node[K comparable, V any] struct {
-	key   K
-	value V
-	next  *Node[K, V]
-	prev  *Node[K, V]
+	Key        K
+	Value      V
+	prev, next *Node[K, V]
 }
 
 func NewLinkedList[K comparable, V any]() *LinkedList[K, V] {
@@ -17,47 +16,47 @@ func NewLinkedList[K comparable, V any]() *LinkedList[K, V] {
 	sentinel.next = &sentinel
 	sentinel.prev = &sentinel
 	return &LinkedList[K, V]{
-		Sentinel: &sentinel,
+		sentinel: &sentinel,
 		len:      0,
 	}
+}
+
+func (l *LinkedList[K, V]) Length() int {
+	return l.len
 }
 
 func (l *LinkedList[K, V]) Head() *Node[K, V] {
 	if l.len == 0 {
 		return nil
 	}
-	return l.Sentinel.next
+	return l.sentinel.next
 }
 
 func (l *LinkedList[K, V]) Tail() *Node[K, V] {
 	if l.len == 0 {
 		return nil
 	}
-	return l.Sentinel.prev
+	return l.sentinel.prev
 }
 
-func (l *LinkedList[K, V]) AddToHead(key K, value V) {
+func (l *LinkedList[K, V]) AddToHead(node *Node[K, V]) {
 	l.len++
-	node := Node[K, V]{
-		key:   key,
-		value: value,
-		next:  l.Sentinel.next,
-		prev:  l.Sentinel,
-	}
-	node.prev.next = &node
-	node.next.prev = &node
+
+	node.next = l.sentinel.next
+	node.prev = l.sentinel
+
+	node.prev.next = node
+	node.next.prev = node
 }
 
-func (l *LinkedList[K, V]) AddToTail(key K, value V) {
+func (l *LinkedList[K, V]) AddToTail(node *Node[K, V]) {
 	l.len++
-	node := Node[K, V]{
-		key:   key,
-		value: value,
-		next:  l.Sentinel,
-		prev:  l.Sentinel.prev,
-	}
-	node.next.prev = &node
-	node.prev.next = &node
+
+	node.next = l.sentinel
+	node.prev = l.sentinel.prev
+
+	node.next.prev = node
+	node.prev.next = node
 }
 
 func (l *LinkedList[K, V]) PopTail() *Node[K, V] {
@@ -68,7 +67,7 @@ func (l *LinkedList[K, V]) PopTail() *Node[K, V] {
 
 	tail := l.Tail()
 
-	tail.prev.next = l.Sentinel
+	tail.prev.next = l.sentinel
 	tail.next.prev = tail.prev
 
 	return tail
@@ -82,7 +81,7 @@ func (l *LinkedList[K, V]) PopHead() *Node[K, V] {
 
 	head := l.Head()
 
-	head.next.prev = l.Sentinel
+	head.next.prev = l.sentinel
 	head.prev.next = head.next
 
 	return head
