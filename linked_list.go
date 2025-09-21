@@ -1,7 +1,7 @@
 package main
 
 type LinkedList[K comparable, V any] struct {
-	sentinel *Node[K, V]
+	sentinel Node[K, V]
 	len      int
 }
 
@@ -16,7 +16,7 @@ func NewLinkedList[K comparable, V any]() *LinkedList[K, V] {
 	sentinel.next = &sentinel
 	sentinel.prev = &sentinel
 	return &LinkedList[K, V]{
-		sentinel: &sentinel,
+		sentinel: sentinel,
 		len:      0,
 	}
 }
@@ -39,26 +39,60 @@ func (l *LinkedList[K, V]) Tail() *Node[K, V] {
 	return l.sentinel.prev
 }
 
-func (l *LinkedList[K, V]) AddToHead(node *Node[K, V]) {
+func (l *LinkedList[K, V]) PushHead(node *Node[K, V]) {
 	l.len++
 
 	node.next = l.sentinel.next
-	node.prev = l.sentinel
+	node.prev = &l.sentinel
 
 	node.prev.next = node
 	node.next.prev = node
 }
 
-func (l *LinkedList[K, V]) AddToTail(node *Node[K, V]) {
+func (l *LinkedList[K, V]) PushTail(node *Node[K, V]) {
 	l.len++
 
-	node.next = l.sentinel
+	node.next = &l.sentinel
 	node.prev = l.sentinel.prev
 
 	node.next.prev = node
 	node.prev.next = node
 }
 
+func (l *LinkedList[K, V]) MoveToHead(node *Node[K, V]) {
+	node.prev.next = node.next
+	node.next.prev = node.prev
+
+	node.next = l.sentinel.next
+	node.prev = &l.sentinel
+
+	node.prev.next = node
+	node.next.prev = node
+}
+
+func (l *LinkedList[K, V]) MoveToTail(node *Node[K, V]) {
+	node.prev.next = node.next
+	node.next.prev = node.prev
+
+	node.next = &l.sentinel
+	node.prev = l.sentinel.prev
+
+	node.prev.next = node
+	node.next.prev = node
+}
+
+func (l *LinkedList[K, V]) Remove(node *Node[K, V]) {
+	l.len--
+
+	node.prev.next = node.next
+	node.next.prev = node.prev
+
+	node.next = nil
+	node.prev = nil
+
+}
+
+/*
 func (l *LinkedList[K, V]) PopTail() *Node[K, V] {
 	if l.len == 0 {
 		return nil
@@ -87,7 +121,7 @@ func (l *LinkedList[K, V]) PopHead() *Node[K, V] {
 	return head
 }
 
-/*
+
 func (l *LinkedList) AddAfter(node *Node, val any) {
 	l.size++
 	newNode := Node{

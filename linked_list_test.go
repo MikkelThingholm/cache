@@ -44,9 +44,9 @@ func TestAddingToHead(t *testing.T) {
 	n1 := Node[int, int]{Value: 1}
 	n2 := Node[int, int]{Value: 2}
 
-	l.AddToHead(&n2)
-	l.AddToHead(&n1)
-	l.AddToHead(&n0)
+	l.PushHead(&n2)
+	l.PushHead(&n1)
+	l.PushHead(&n0)
 
 	got := traverseValues(*l)
 	want := []int{0, 1, 2}
@@ -68,9 +68,9 @@ func TestAddingToHeadAndTail(t *testing.T) {
 	n1 := Node[int, int]{Value: 1}
 	n2 := Node[int, int]{Value: 2}
 
-	l.AddToTail(&n0)
-	l.AddToTail(&n1)
-	l.AddToTail(&n2)
+	l.PushTail(&n0)
+	l.PushTail(&n1)
+	l.PushTail(&n2)
 
 	got := traverseValues(*l)
 	want := []int{0, 1, 2}
