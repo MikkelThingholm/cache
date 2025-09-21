@@ -12,13 +12,10 @@ type Node[K comparable, V any] struct {
 }
 
 func NewLinkedList[K comparable, V any]() *LinkedList[K, V] {
-	sentinel := Node[K, V]{}
-	sentinel.next = &sentinel
-	sentinel.prev = &sentinel
-	return &LinkedList[K, V]{
-		sentinel: sentinel,
-		len:      0,
-	}
+	l := &LinkedList[K, V]{}
+	l.sentinel.next = &l.sentinel
+	l.sentinel.prev = &l.sentinel
+	return l
 }
 
 func (l *LinkedList[K, V]) Length() int {
@@ -90,6 +87,22 @@ func (l *LinkedList[K, V]) Remove(node *Node[K, V]) {
 	node.next = nil
 	node.prev = nil
 
+}
+
+func (l *LinkedList[K, V]) Clear() {
+	if l.Length() == 0 {
+		return
+	}
+
+	for node := l.sentinel.next; node != &l.sentinel; {
+		next := node.next
+		node.prev = nil
+		node.next = nil
+		node = next
+	}
+	l.sentinel.next = &l.sentinel
+	l.sentinel.prev = &l.sentinel
+	l.len = 0
 }
 
 /*
