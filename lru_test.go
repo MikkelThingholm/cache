@@ -40,3 +40,21 @@ func TestEviction(t *testing.T) {
 	}
 
 }
+
+func Test_InsertingExistingKeyUpdatesValue(t *testing.T) {
+	lru, err := NewLRU[int, int](3)
+	if err != nil {
+		t.Fatalf("error while initializing LRU: %s", err)
+	}
+	lru.Insert(1, 1)
+	lru.Insert(1, 2)
+
+	node, err := lru.Get(1)
+	if err != nil {
+		t.Errorf("got %v, want nil", err)
+	}
+	if got, want := node.Value, 2; got != want {
+		t.Errorf("got %d, want %d", got, want)
+	}
+
+}
