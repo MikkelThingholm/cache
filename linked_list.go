@@ -8,6 +8,7 @@ type LinkedList[K comparable, V any] struct {
 type Node[K comparable, V any] struct {
 	Key        K
 	Value      V
+	ExpiresAt  int64
 	prev, next *Node[K, V]
 }
 
@@ -103,6 +104,19 @@ func (l *LinkedList[K, V]) Clear() {
 	l.sentinel.next = &l.sentinel
 	l.sentinel.prev = &l.sentinel
 	l.len = 0
+}
+
+func (l *LinkedList[K, V]) FindExpiresBefore(t int64) []*Node[K, V] {
+	if l.Length() == 0 {
+		return []*Node[K, V]{}
+	}
+	result := []*Node[K, V]{}
+	for node := l.Head(); node != &l.sentinel; node = node.next {
+		if node.ExpiresAt <= t {
+			result = append(result, node)
+		}
+	}
+	return result
 }
 
 /*

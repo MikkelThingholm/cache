@@ -159,3 +159,64 @@ func Test_Clear(t *testing.T) {
 	}
 
 }
+
+func Test_FindExpiredNodes(t *testing.T) {
+	t.Run("finds nodes expiring before threshold", func(t *testing.T) {
+		l := NewLinkedList[int, int]()
+
+		n1 := &Node[int, int]{Value: 1, ExpiresAt: 1}
+		n2 := &Node[int, int]{Value: 2, ExpiresAt: 2}
+		n3 := &Node[int, int]{Value: 3, ExpiresAt: 5}
+		n4 := &Node[int, int]{Value: 4, ExpiresAt: 4}
+		n5 := &Node[int, int]{Value: 5, ExpiresAt: 3}
+		l.PushTail(n1)
+		l.PushTail(n2)
+		l.PushTail(n3)
+		l.PushTail(n4)
+		l.PushTail(n5)
+
+		got := l.FindExpiresBefore(3)
+		want := []*Node[int, int]{n1, n2, n5}
+
+		if !slices.Equal(got, want) {
+			t.Errorf("should contain the same nodes: got %+v, want %+v", got, want)
+		}
+	})
+
+	t.Run("no nodes below threshold", func(t *testing.T) {
+		l := NewLinkedList[int, int]()
+
+		n1 := &Node[int, int]{Value: 3, ExpiresAt: 3}
+		n2 := &Node[int, int]{Value: 4, ExpiresAt: 4}
+		n3 := &Node[int, int]{Value: 5, ExpiresAt: 5}
+		l.PushTail(n1)
+		l.PushTail(n2)
+		l.PushTail(n3)
+
+		got := l.FindExpiresBefore(2)
+
+		if len(got) != 0 {
+			t.Errorf("expected 0 expired nodes: got %+v", got)
+		}
+	})
+
+	t.Run("all nodes expires before threshold", func(t *testing.T) {
+		l := NewLinkedList[int, int]()
+
+		n1 := &Node[int, int]{Value: 1, ExpiresAt: 1}
+		n2 := &Node[int, int]{Value: 2, ExpiresAt: 2}
+		n3 := &Node[int, int]{Value: 3, ExpiresAt: 3}
+
+		l.PushTail(n1)
+		l.PushTail(n2)
+		l.PushTail(n3)
+
+		got := l.FindExpiresBefore(3)
+		want := []*Node[int, int]{n1, n2, n3}
+
+		if !slices.Equal(got, want) {
+			t.Errorf("should contain the same nodes: got %+v, want %+v", got, want)
+		}
+	})
+
+}
