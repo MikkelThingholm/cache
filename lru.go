@@ -31,30 +31,58 @@ func (lru LRU[K, V]) Count() int {
 
 func (lru *LRU[K, V]) Insert(key K, value V) {
 
-	if node, ok := lru.hashMap[key]; ok {
-		node.Value = value
-		lru.evictionList.MoveToHead(node)
+	if node, ok := lru.get(key); ok {
+		lru.update(node, value)
 		return
+	}
+
+	lru.add(key, value)
+}
+
+func (lru *LRU[K, V]) Get(key K) (Node[K, V], error) {
+	node, ok := lru.get(key)
+	if !ok {
+		return Node[K, V]{}, fmt.Errorf("key not found")
+	}
+	return *node, nil
+}
+
+func (lru *LRU[K, V]) add(key K, value V) bool {
+
+	if _, ok := lru.hashMap[key]; ok {
+		return false
 	}
 
 	node := &Node[K, V]{
 		Key:   key,
 		Value: value,
 	}
-	lru.hashMap[key] = node
+
 	if lru.evictionList.Length() == lru.cap {
-		tail := lru.evictionList.Tail()
-		lru.evictionList.Remove(tail)
-		delete(lru.hashMap, tail.Key)
+		lru.remove(lru.evictionList.Tail())
 	}
+
+	lru.hashMap[key] = node
 	lru.evictionList.PushHead(node)
+	return true
 }
 
-func (lru *LRU[K, V]) Get(key K) (Node[K, V], error) {
+func (lru *LRU[K, V]) remove(node *Node[K, V]) {
+	lru.evictionList.Remove(node)
+	delete(lru.hashMap, node.Key)
+}
+
+func (lru *LRU[K, V]) get(key K) (*Node[K, V], bool) {
 	node, ok := lru.hashMap[key]
 	if !ok {
-		return Node[K, V]{}, fmt.Errorf("key not found")
+		return nil, false
 	}
 	lru.evictionList.MoveToHead(node)
-	return *node, nil
+
+	return node, true
+}
+
+func (lru *LRU[K, V]) update(node *Node[K, V], newValue V) {
+	node.Value = newValue
+	lru.evictionList.MoveToHead(node)
 }
