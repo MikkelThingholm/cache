@@ -91,7 +91,9 @@ func Test_ExpiredItemsAreEvicted(t *testing.T) {
 		if _, found := lru.Get(2); found != false {
 			t.Errorf("Expected key 2 to be deleted")
 		}
+
 		time.Sleep(10 * time.Minute)
+		synctest.Wait()
 
 		if lru.Count() != 0 {
 			t.Errorf("Expected lru count to be 0, got %d", lru.Count())
